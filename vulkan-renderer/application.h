@@ -8,12 +8,13 @@
 #include <iostream>
 
 #include "queue_family.h"
+#include "swap_chain.h"
 
 class Application
 {
 public:
-	static constexpr uint32_t s_WIDTH = 800;
-	static constexpr uint32_t s_HEIGHT = 600;
+	static constexpr uint32_t s_WIDTH = 1280;
+	static constexpr uint32_t s_HEIGHT = 720;
 
 	void Run();
 
@@ -22,15 +23,23 @@ private:
 	VkInstance m_instance;
 
 	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkSurfaceKHR m_surface;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 
 	VkDevice m_device; // logical device
 	VkQueue m_graphicsQueue;
+	VkQueue m_presentQueue;
+
+	VkSwapchainKHR m_swapchain;
+	VkFormat m_swapchainImageFormat;
+	VkExtent2D m_swapchainExtent;
+	std::vector<VkImage> m_swapchainImages;
+	std::vector<VkImageView> m_swapchainImageViews;
+
 
 	void InitWindow();
 	void InitVulkan();
 
-#pragma region Instance Creation
 	void CreateVulkanInstance();
 
 	bool CheckValidationLayerSupport();
@@ -39,22 +48,32 @@ private:
 	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-#pragma endregion
 
-#pragma region Physical Device Creation
+	void CreateSurface();
+
 	void PickPhysicalDevice();
-	bool IsDeviceSuitable(VkPhysicalDevice device);
+	bool IsPhysicalDeviceSuitable(VkPhysicalDevice device);
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-#pragma endregion
+	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
+	SwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device);
 
-#pragma region Logical Device Creation
 	void CreateLogicalDevice();
-#pragma endregion
+
+	void CreateSwapchain();
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+	void CreateImageViews();
 
 	void MainLoop();
-
 	void Cleanup();
 
+	static constexpr size_t s_deviceExtensionCount = 1;
+	static constexpr std::array<const char*, s_deviceExtensionCount> s_deviceExtensions =
+	{
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
 
 	static constexpr size_t s_validationLayerCount = 1;
 	static constexpr std::array<const char*, s_validationLayerCount> s_validationLayers =

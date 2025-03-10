@@ -2,5 +2,6 @@
 
 bool QueueFamilyIndices::IsComplete()
 {
-    return m_graphicsFamily.has_value();
+    return m_graphicsFamily.has_value() &&
+        m_presentFamily.has_value();
 }

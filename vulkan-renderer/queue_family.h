@@ -8,6 +8,7 @@
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> m_graphicsFamily;
+	std::optional<uint32_t> m_presentFamily;
 
 	bool IsComplete();
 };
